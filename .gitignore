@@ -1,0 +1,10 @@
+# environment
+.vscode
+.env
+
+# python
+.venv
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
