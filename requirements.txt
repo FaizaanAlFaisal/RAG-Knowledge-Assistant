@@ -1,8 +1,12 @@
+aioredis
 celery[redis]
-fastapi
+fastapi[all]
 httpx
+passlib[bcrypt]
+python-jose
 psycopg2-binary
 pydantic
 python-dotenv
+redis
 sqlalchemy
 uvicorn[standard]
