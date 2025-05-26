@@ -1,3 +1,4 @@
+import os
 import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -31,7 +32,10 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_event():
-    """Startup event to test database connection."""
+    """
+    Startup event to test database connection.
+    Also, download the model if not already downloaded.
+    """
     try:
         test_db()
         logging.info("✅ Database connection successful. ✅")
@@ -39,12 +43,22 @@ async def startup_event():
         logging.error(f"❌ Database connection failed: {e} ❌")
         raise e
     
+    try:
+        if os.path.exists("distilgpt2") and os.path.exists("all-MiniLM-L6-v2"):
+            logging.info("Models already downloaded.")
+        else:
+            from rag_models.download_models import download_models
+            download_models()
+            logging.info("All models downloaded successfully.")
+    except Exception as e:
+        logging.error(f"❌ Model download failed: {e} ❌")
+        raise Exception("Model download failed. Delete the model folders and restart the server to re-download them.")
+
 
 @app.get("/")
 async def read_root():
     """Root endpoint."""
     return {"message": "Welcome to the RAG FastAPI Backend!"}
-
 
 
 from tasks.worker import celery_app, add
