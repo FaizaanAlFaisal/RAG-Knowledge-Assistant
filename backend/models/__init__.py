@@ -1,11 +1,11 @@
 from .base import Base
 from .users import User
 from .documents import Document
-# from .embeddings import Embedding 
+from .query_logs import QueryLog
 
 __all__ = [
+    "Base",
     "User",
     "Document",
-    # "Embedding",
-    "Base"
+    "QueryLog",
 ]
