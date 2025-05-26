@@ -46,6 +46,9 @@ async def read_root():
     return {"message": "Welcome to the RAG FastAPI Backend!"}
 
 
+
+from tasks.worker import celery_app, add
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint."""
@@ -56,7 +59,18 @@ async def health_check():
     except Exception as e:
         logging.error(f"❌ Database connection failed: {e} ❌")
     
+    celery_check = False
+    try:
+        result = add.delay(1, 2) 
+        celery_app.control.ping() 
+        logging.info(f"Celery task result: {result.get(timeout=5)}")
+        if result.ready():
+            logging.info("✅ Celery task completed successfully. ✅")
+        celery_check = True
+    except Exception as e:
+        logging.error(f"❌ Celery connection failed: {e} ❌")
     return {
         "fastapi": "running",
         "database": "connected" if db_check else "disconnected",
+        "celery": "connected" if celery_check else "disconnected"
     }
