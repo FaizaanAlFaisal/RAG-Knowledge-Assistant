@@ -1,0 +1,68 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env.copy
+    depends_on:
+      - postgres
+      - redis
+      - torchserve
+    volumes:
+      - ./backend:/app/backend
+    command: >
+      bash -c "
+      alembic upgrade head &&
+      uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+      "
+    ports:
+      - "8000:8000"
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env.copy
+    depends_on:
+      - backend
+      - redis
+      - postgres
+      - torchserve
+    volumes:
+      - ./backend:/app/backend
+    command: celery -A backend.tasks.worker worker --loglevel=info
+
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: your_user
+      POSTGRES_PASSWORD: your_password
+      POSTGRES_DB: your_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+
+  torchserve:
+    build:
+      context: ./torchserve
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+      - "8082:8082"
+    restart: unless-stopped
+
+volumes:
+  pgdata:
