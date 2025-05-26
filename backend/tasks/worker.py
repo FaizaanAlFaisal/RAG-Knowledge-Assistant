@@ -7,10 +7,6 @@ celery_app = Celery(
     include=["backend.tasks.embedding_tasks", "backend.tasks.query_tasks"]
 )
 
-celery_app.autodiscover_tasks(
-    ["backend.tasks.embedding_tasks", "backend.tasks.query_tasks"]
-)
-
 # sample task
 @celery_app.task
 def add(x, y):
