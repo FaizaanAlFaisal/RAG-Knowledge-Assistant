@@ -3,10 +3,13 @@ celery[redis]
 fastapi[all]
 httpx
 passlib[bcrypt]
+pgvector
 python-jose
 psycopg2-binary
 pydantic
 python-dotenv
 redis
+sentence-transformers
 sqlalchemy
+transformers
 uvicorn[standard]
