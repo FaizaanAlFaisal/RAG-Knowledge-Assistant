@@ -1,5 +1,6 @@
 import os
 import logging
+from core.config import settings
 from sentence_transformers import SentenceTransformer
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
@@ -7,12 +8,12 @@ def download_models():
     base_dir = os.path.dirname(os.path.abspath(__file__))
 
     # download and save distilgpt2 generation model + tokenizer if not already downloaded
-    gen_model = "distilgpt2"
-    gen_model_dir = os.path.join(base_dir, "distilgpt2")
+    gen_model = settings.GEN_MODEL
+    gen_model_dir = os.path.join(base_dir, gen_model)
     
     if not os.path.exists(gen_model_dir):
         os.makedirs(gen_model_dir)
-        print(f"Downloading distilgpt2 model to {gen_model_dir} ...")
+        print(f"Downloading '{gen_model}' model to '{gen_model_dir}' ...")
         
         model = AutoModelForCausalLM.from_pretrained(gen_model)
         tokenizer = AutoTokenizer.from_pretrained(gen_model)
@@ -24,7 +25,7 @@ def download_models():
 
 
     # download and save sentence-transformers embedding model if not already downloaded
-    embed_model = "sentence-transformers/all-MiniLM-L6-v2"
+    embed_model = settings.EMBEDDING_MODEL
     embed_model_dir = os.path.join(base_dir, embed_model.split("/")[-1])
     
     if not os.path.exists(embed_model_dir):
