@@ -1,4 +1,4 @@
-from base import Base
+from .base import Base
 from pgvector.sqlalchemy import Vector
 from datetime import datetime, timezone
 from sqlalchemy.orm import relationship
