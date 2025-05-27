@@ -26,6 +26,11 @@ class Settings(BaseSettings):
     ALGORITHM: str = Field("HS256", env="ALGORITHM")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(30, env="ACCESS_TOKEN_EXPIRE_MINUTES")
 
+    # Model settings
+    GEN_MODEL: str = Field("distilgpt2", env="GEN_MODEL")
+    GEN_TOKENIZER: str = Field("distilgpt2", env="GEN_TOKENIZER")
+    EMBEDDING_MODEL: str = Field("sentence-transformers/all-MiniLM-L6-v2", env="EMBEDDING_MODEL")
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
