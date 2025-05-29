@@ -1,4 +1,39 @@
 services:
+
+  postgres:
+    image: pgvector/pgvector:pg17
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend:/app/backend
+      - ./alembic.ini:/app/alembic.ini
+      - ./backend/alembic:/app/backend/alembic
+    command: alembic upgrade head
+    restart: "no"
+    profiles: ["migrate"]
+
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+
   backend:
     build:
       context: .
@@ -10,11 +45,6 @@ services:
       - redis
     volumes:
       - ./backend:/app/backend
-    command: >
-      bash -c "
-      alembic upgrade head &&
-      uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
-      "
     ports:
       - "8000:8000"
 
@@ -30,25 +60,7 @@ services:
       - postgres
     volumes:
       - ./backend:/app/backend
-    command: celery -A backend.tasks.worker worker --loglevel=info
-
-  postgres:
-    image: postgres:latest
-    restart: always
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-
-  redis:
-    image: redis:latest
-    restart: always
-    ports:
-      - "6379:6379"
+    command: celery -A tasks.worker worker --loglevel=info
 
 volumes:
   pgdata:
